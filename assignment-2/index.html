@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio • Assignment 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__wrap">
+      <div class="brand">Your Name</div>
+      <nav class="nav" aria-label="Main">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+        <button id="themeToggle" class="theme-toggle" aria-pressed="false">🌗 Theme</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="main">
+    <section class="hero">
+      <div class="hero__hi"><span id="greeting" class="hero__greeting">Hello!</span> 👋</div>
+      <p class="hero__sub">Welcome to my portfolio. This page implements Assignment 2 interactive features.</p>
+
+      <div class="badges" role="list">
+        <span class="badge">Accessible</span>
+        <span class="badge">Responsive</span>
+        <span class="badge">AI-assisted</span>
+        <button class="badge button" id="openAiHelper" aria-controls="aiPanel" aria-expanded="false">AI Helper</button>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Sections">
+        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-about">About</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-projects">Projects</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-contact">Contact</button>
+      </div>
+    </section>
+
+    <section id="about" class="section reveal" data-tab="tab-about">
+      <h2>About Me</h2>
+      <p>I’m a software developer interested in web, UI, and games. This page demonstrates filters, search, transitions, API fetching, and robust error handling.</p>
+    </section>
+
+    <section id="projects" class="section reveal" data-tab="tab-projects" hidden>
+      <h2>Projects</h2>
+      <div class="controls" role="region" aria-label="Project controls">
+        <input id="search" type="search" placeholder="Search by title or tag…" aria-label="Search projects" />
+        <select id="filter">
+          <option value="all">All types</option>
+          <option value="web">Web</option>
+          <option value="game">Game</option>
+          <option value="other">Other</option>
+        </select>
+        <select id="sort">
+          <option value="title-asc">Title (A→Z)</option>
+          <option value="title-desc">Title (Z→A)</option>
+          <option value="date-desc">Newest first</option>
+          <option value="date-asc">Oldest first</option>
+        </select>
+      </div>
+      <div id="projectGrid" class="grid" aria-live="polite"></div>
+      <p id="emptyState" class="empty" hidden>No projects found.</p>
+
+      <h3 style="margin-top:18px">Fetch GitHub Repos (Demo)</h3>
+      <div class="controls">
+        <input id="ghUser" class="input" placeholder="GitHub username (e.g. octocat)" />
+        <button id="ghFetch" class="button">Fetch Repos</button>
+        <span id="ghStatus" class="empty" hidden>Loading…</span>
+      </div>
+      <div id="ghList" class="grid"></div>
+      <p id="ghError" class="empty" hidden>
+        Couldn’t load repos. <button id="ghRetry" class="button">Retry</button>
+      </p>
+    </section>
+
+    <section id="contact" class="section reveal" data-tab="tab-contact" hidden>
+      <h2>Contact</h2>
+      <form id="contactForm" class="form" novalidate>
+        <div class="row">
+          <label for="name">Name</label>
+          <input id="name" class="input" required />
+          <span class="error" id="err-name">Please enter your name.</span>
+        </div>
+        <div class="row">
+          <label for="email">Email</label>
+          <input id="email" class="input" type="email" required />
+          <span class="error" id="err-email">Please enter a valid email.</span>
+        </div>
+        <div class="row">
+          <label for="msg">Message</label>
+          <textarea id="msg" class="input" rows="5" required></textarea>
+          <span class="error" id="err-msg">Please add a short message.</span>
+        </div>
+        <div class="row" style="display:flex; gap:8px;">
+          <button class="button primary" type="submit">Send</button>
+          <button class="button" type="reset">Reset</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer container">© <span id="year">2025</span> · Built for SWE 363 Assignment 2</footer>
+
+  <!-- AI helper panel -->
+  <dialog id="aiPanel" style="border:none; max-width:720px; width:clamp(320px,70vw,720px); border-radius:16px; padding:0;">
+    <form method="dialog" style="margin:0;">
+      <header class="header" style="padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px;">
+        <strong>AI Helper</strong>
+        <span style="color:var(--muted);">Optional: paste an API key to draft microcopy.</span>
+        <button value="close" class="button" style="margin-left:auto;">Close</button>
+      </header>
+      <div style="padding:16px; display:grid; gap:10px; background:var(--bg);">
+        <input id="aiKey" class="input" placeholder="OpenAI-compatible API key (optional)" />
+        <textarea id="aiPrompt" class="input" rows="4" placeholder="e.g., Draft a friendly success message for the contact form."></textarea>
+        <div style="display:flex; gap:8px;">
+          <button id="aiGenerate" class="button primary" type="button">Generate</button>
+          <button id="aiClear" class="button" type="button">Clear</button>
+        </div>
+        <pre id="aiOutput" class="empty" style="white-space:pre-wrap;"></pre>
+        <p class="empty">Privacy note: The key only lives in your browser (LocalStorage) and requests go directly from your browser.</p>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Sent! I’ll get back to you soon.</div>
+  <script src="js/script.js" defer></script>
+</body>
+</html>
