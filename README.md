@@ -1,18 +1,29 @@
 # Assignment 2 – Interactive Features
 
-Enhanced personal portfolio building on top of Assignment 1.
+This is the second version of my personal portfolio website, expanded from Assignment 1.  
+It keeps the same overall structure but adds new interactivity, animations, and small touches that make it more dynamic and engaging.
 
 ## 🚀 What’s New in Assignment 2
-- Dynamic **project filter/sort + live search**
-- **Theme toggle** (saved in LocalStorage)
-- Accessible dialogs for per-project details (Figma link vs PowerPoint download)
-- **Reveal-on-scroll** animations (reduced-motion friendly)
-- **GitHub API** demo with loading/empty/error states + retry
-- **Contact form** with inline validation and success toast
-- Optional **AI Helper** panel (OpenAI-compatible, key-based) with a local fallback
-- Clear empty states and user feedback across features
+- Dynamic **greeting** that personalizes based on the user
+- **Dark and light mode toggle** with a small notification when the theme changes  
+- **Project filtering, searching, and sorting** for easier browsing
+- Each project includes **extra details**, plus access to **Figma** (design) or **PDF/PowerPoint** (documentation) files
+- **Additional information about me** section using expandable content
+- Smooth **animations and transitions** when scrolling or revealing content
+- A **simple API feature** (GitHub demo) that shows data loading, error handling, and retry
+- Fully **accessible form validation** and toast notifications for feedback
+
+All features build directly on my Assignment 1 portfolio to make it feel more interactive, polished, and user-friendly.
+
+## 🧰 Tools and AI Assistance
+- **ChatGPT 5 Pro** – helped brainstorm and plan the features I wanted to add (ideas came from me; ChatGPT helped refine them).  
+- **ChatGPT 5** and **GitHub Copilot** – assisted with debugging and improving parts of the HTML, CSS, and JavaScript.  
+- **Lovable** – generated the full dark mode design using my color suggestions and helped refine contrast and accessibility.  
+
+I reviewed and edited all AI suggestions myself to make sure I understood the code and the reasoning behind each feature.
 
 ## 🗂 Project Structure
+```plaintext
 ASSIGNMENT-2/
 ├── assets/
 │   └── images/
@@ -23,38 +34,3 @@ ASSIGNMENT-2/
 ├── index.html
 ├── README.md
 └── SWE216_Presentation.pdf
-
-
-
-
-## 🧰 Running Locally
-Just open `index.html` in a browser. No build step required.
-
-For the optional AI Helper: open the helper pane, paste an OpenAI-compatible API key, and try generating microcopy. If no key is provided, the app uses a safe local fallback.
-
-## 🔗 Project Details Links
-- **Evaluation Hub** — opens Figma (design/prototype).
-- **Student Impact Hub** — offers a direct **.pptx** download (or a proper exported PDF).
-
-> Tip: If a PDF shows blank pages, ensure it’s a *true export* from PowerPoint (**File → Export → PDF**) rather than a renamed file.
-
-## 🤖 AI Summary (High-Level)
-- **ChatGPT 5 Pro** — brainstorming features and planning (features are my ideas; ChatGPT helped shape and prioritize).
-- **ChatGPT 5 & GitHub Copilot** — fixing errors, clarifying warnings, and suggesting small refactors.
-- **Lovable** — CSS suggestions for spacing, contrast, and states.
-- Privacy: no secrets are hard-coded; optional AI runs client-side with a user-supplied key. A local fallback keeps the site fully functional.
-
-> Full details are in `docs/ai-usage-report.md`.
-
-## 🧪 Notes for Graders
-- All new features are visible in the UI. Open the console to test error/retry flows.
-- Reduced-motion is respected if enabled in your OS/browser.
-- The API demo is client-side and needs network access.
-
-## 🌐 Optional: Live Deploy
-GitHub Pages:
-1. Push to GitHub as `assignment-2`.
-2. **Settings → Pages →** Deploy from branch (`main` / root).
-3. Open the published URL after it builds.
-
-

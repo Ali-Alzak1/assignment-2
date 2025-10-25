@@ -1,55 +1,36 @@
 # Technical Documentation
 
 ## Overview
-This is a single-page portfolio (HTML/CSS/JS, no build step) that extends Assignment 1. It adds interactive features, strong error handling, subtle animations, and an optional AI Helper panel. All features are client-side.
+This project builds directly on Assignment 1, turning the static portfolio into a fully interactive one.  
+All new features were designed to improve user experience, add interactivity, and make the site more dynamic while keeping it simple and accessible.
 
-## Key Features (maps to Assignment 2 requirements)
-- **Dynamic content**
-  - Project grid with **live search**, **filter by tag**, and **sort** (newest/oldest/A–Z/Z–A).
-  - Expandable details via accessible dialogs (per-project “More info”).
-  - Personalized greeting with a **“Personalize”** action (local name).
-- **Data handling**
-  - **LocalStorage** for theme and optional user name.
-  - **GitHub API** demo with loading, error + retry, and empty states.
-  - **Contact form** with inline validation and a success toast.
-- **Animation & transitions**
-  - Reveal-on-scroll via **IntersectionObserver**.
-  - Smooth hover/focus states and section transitions.
-  - Respects `prefers-reduced-motion`.
-- **Error handling & user feedback**
-  - Inline errors for invalid form fields.
-  - API demo has loading → error + retry → empty states.
-  - Clear empty state for project filtering.
-  - Toasts for success; polite live regions for updates.
-- **AI enhancement**
-  - Optional **AI Helper** panel (OpenAI-compatible). If no key is provided, it falls back to local, safe copy so the site works without secrets.
+## Key Enhancements from Assignment 1
+- **Dynamic greeting** that changes based on user input.
+- **Dark/light theme toggle** with a visual notification and local storage to save preference.
+- **Filter, search, and sort** functions in the project section.
+- **Expanded “About Me”** section with hidden content users can reveal.
+- **Project modals** showing design or documentation files (Figma link or PowerPoint/PDF download).
+- **Scroll-based animations** using Intersection Observer for a smooth reveal effect.
+- **API demonstration** that handles loading, error, retry, and empty states.
+- **Accessible form validation** with inline errors and success feedback.
 
 ## Data Handling
-- **LocalStorage keys**
-  - `prefers-dark`: boolean for theme preference.
-  - `username`: optional, for the personalized greeting.
-  - `ai_key`: optional key used only in the browser for the AI Helper.
-- **API**
-  - `https://api.github.com/users/{user}/repos`
-  - UI elements: `#ghStatus` (loading), `#ghError` (error), `#ghRetry` (retry button), and an empty state message when needed.
-- **Forms**
-  - Required fields with inline errors (`aria-live="polite"`).
-  - Submit → spinner → success toast (no server persistence in this assignment).
+- Uses **LocalStorage** to remember theme preference and user name.
+- Fetches from **GitHub’s public API** to demonstrate loading and error states.
+- Displays fallback messages if data fails to load.
 
-## Accessibility
-- Semantic HTML: `header`, `main`, `section`, `footer`.
-- ARIA: labels for interactive controls, live regions for updates.
-- Dialogs: titled `<dialog>` with a close button and focus management hints.
-- Color/contrast checked; clear focus rings.
-- Respects `prefers-reduced-motion`.
+## Accessibility and Feedback
+- Semantic HTML structure (`header`, `main`, `section`, `footer`).
+- ARIA labels, roles, and live regions.
+- Inline validation for form fields.
+- Toast messages and polite live updates for user feedback.
+- Respects reduced-motion preferences in animations.
 
-## Performance
-- Zero dependencies; small JS.
-- IntersectionObserver defers animations until elements are visible.
-- `loading="lazy"` on images; lightweight transitions.
+## Tools and AI Integration
+- **ChatGPT 5 Pro** for feature ideation and planning.
+- **ChatGPT 5** and **GitHub Copilot** for debugging and cleanup.
+- **Lovable** for complete dark mode design and style refinements.
 
-## How to Extend
-- Add more projects via JSON or a small data file.
-- Connect a backend to persist contact messages.
-- Extend the AI Helper to additional providers or add simple prompt templates.
-- Add tag multi-select or saved filters.
+## Summary
+Assignment 2 focuses on improving interactivity, accessibility, and user feedback.  
+All features are lightweight, responsive, and built with plain HTML, CSS, and JavaScript — no frameworks or external dependencies.
