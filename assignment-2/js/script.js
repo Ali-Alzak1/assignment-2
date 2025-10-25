@@ -1,252 +1,389 @@
+// Enhancements: theme (system + toggle + persist), robust quotes (multi-source + fallback),
+// image fit fix, filters/sort/search, reveals, nav, toasts, form inline errors, FAB, shortcuts.
 
-// Assignment 2: interactivity, data handling, animations, error feedback, AI helper.
-(function(){
-  const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
+document.addEventListener('DOMContentLoaded', () => {
+  const $ = (s, c=document) => c.querySelector(s);
+  const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
 
-  // Greeting + year
-  const greeting = $('#greeting');
-  const hour = new Date().getHours();
-  greeting && (greeting.textContent = hour < 12 ? 'Good morning!' : hour < 18 ? 'Good afternoon!' : 'Good evening!');
-  const year = $('#year'); if (year) year.textContent = new Date().getFullYear();
+  const YEAR = $('#year'); if (YEAR) YEAR.textContent = new Date().getFullYear();
 
-  // Theme toggle (LocalStorage)
-  const themeToggle = $('#themeToggle');
-  const THEME_KEY = 'prefers-dark';
-  const applyTheme = (dark) => {
-    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
-    themeToggle?.setAttribute('aria-pressed', String(!!dark));
-    localStorage.setItem(THEME_KEY, String(!!dark));
+  const KEYS = {
+    name: 'aa_name',
+    theme: 'aa_theme', // 'light' | 'dark' | 'system'
+    filter: 'aa_project_filter',
+    sort: 'aa_project_sort',
+    search: 'aa_project_search',
+    lastSection: 'aa_last_section',
   };
-  const saved = localStorage.getItem(THEME_KEY);
-  applyTheme(saved ? saved === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches);
-  themeToggle?.addEventListener('click', () => {
-    const active = localStorage.getItem(THEME_KEY) === 'true';
-    applyTheme(!active);
+
+  /* ---------------- Theme: system + toggle ---------------- */
+  const root = document.documentElement;
+  const toggleBtn = $('#theme-toggle');
+
+  function applyTheme(pref) {
+    // 'light', 'dark', or 'system' (system follows prefers-color-scheme)
+    root.setAttribute('data-theme', pref);
+    // Button label/icon
+    const label = toggleBtn?.querySelector('.theme-label');
+    const icon = toggleBtn?.querySelector('.theme-icon');
+    const isDark = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim().startsWith('#0'); // heuristic
+    if (label && icon) {
+      if (pref === 'dark' || (pref === 'system' && isSystemDark())) {
+        label.textContent = 'Light'; icon.textContent = '☀️';
+      } else {
+        label.textContent = 'Dark'; icon.textContent = '🌙';
+      }
+    }
+    // meta theme-color for mobile
+    const meta = document.querySelector('meta[name="theme-color"]') || Object.assign(document.createElement('meta'), { name: 'theme-color' });
+    meta.content = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#ffffff';
+    if (!meta.parentNode) document.head.appendChild(meta);
+  }
+  function isSystemDark(){ return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function currentTheme(){
+    return localStorage.getItem(KEYS.theme) || 'system';
+  }
+  // init
+  applyTheme(currentTheme());
+  // listen to system changes when in 'system'
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (currentTheme() === 'system') applyTheme('system');
+    });
+  }
+  // toggle click: light <-> dark (keeps system in storage only if explicitly chosen)
+  toggleBtn?.addEventListener('click', () => {
+    const cur = currentTheme();
+    const next = (cur === 'dark' || (cur === 'system' && isSystemDark())) ? 'light' : 'dark';
+    localStorage.setItem(KEYS.theme, next);
+    applyTheme(next);
+    showToast('Theme updated', `Switched to ${next} mode.`);
   });
 
-  // Tabs (About/Projects/Contact)
-  const tabButtons = $$('.tab-btn');
-  const sections = $$('[data-tab]');
-  const showTab = (id) => {
-    sections.forEach(s => s.hidden = s.getAttribute('data-tab') !== id);
-    tabButtons.forEach(b => b.setAttribute('aria-selected', String(b.getAttribute('aria-controls') === id)));
+  /* ---------------- Greeting + personalize ---------------- */
+  const greet = $('#greeting');
+  const personalize = $('#personalize');
+  function setGreeting(){
+    if (!greet) return;
+    const hour = new Date().getHours();
+    const base = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    const name = localStorage.getItem(KEYS.name);
+    greet.textContent = name ? `${base}, ${name}!` : `${base}!`;
+  }
+  setGreeting();
+
+  personalize?.addEventListener('click', () => {
+    const current = localStorage.getItem(KEYS.name) || '';
+    const name = prompt('What name should I greet you with?', current);
+    if (name === null) return;
+    const cleaned = name.trim().replace(/\s+/g, ' ');
+    if (cleaned) {
+      localStorage.setItem(KEYS.name, cleaned);
+      setGreeting();
+      showToast('Personalized', `I’ll greet you as ${cleaned}.`);
+    } else {
+      localStorage.removeItem(KEYS.name);
+      setGreeting();
+      showToast('Reset', 'Greeting personalization cleared.');
+    }
+  });
+
+  /* ---------------- Scroll progress ---------------- */
+  const progress = $('#scroll-progress');
+  const updateProgress = () => {
+    const t = window.scrollY;
+    const d = document.documentElement.scrollHeight - window.innerHeight;
+    if (progress) progress.style.width = (d > 0 ? (t/d)*100 : 0) + '%';
   };
-  tabButtons.forEach(btn => btn.addEventListener('click', () => showTab(btn.getAttribute('aria-controls'))));
+  updateProgress();
+  window.addEventListener('scroll', updateProgress, { passive:true });
+  window.addEventListener('resize', updateProgress);
 
-  // Reveal on scroll
-  const revealEls = $$('.reveal');
-  const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries, ob)=>{
-    entries.forEach(e=>{
-      if (e.isIntersecting) {
-        e.target.classList.add('is-visible');
-        ob.unobserve(e.target);
-      }
-    });
-  }, {threshold:.12}) : null;
-  revealEls.forEach(el => io ? io.observe(el) : el.classList.add('is-visible'));
+  /* ---------------- Reveal on scroll ---------------- */
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealTargets = $$('[data-animate]');
+  if (reduceMotion) {
+    revealTargets.forEach(el => el.classList.add('is-visible'));
+  } else if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('is-visible'); obs.unobserve(e.target); }
+      });
+    }, { threshold: 0.15 });
+    revealTargets.forEach(el => io.observe(el));
+  } else {
+    revealTargets.forEach(el => el.classList.add('is-visible'));
+  }
 
-  // Projects data
-  const projects = [
-    { id:1, title:'Gamify Yourself', type:'game', date:'2025-03-01', tags:['JS','Canvas'], details:'A tiny browser game to stay productive.' },
-    { id:2, title:'Student Impact Hub', type:'web', date:'2025-02-10', tags:['HTML','CSS','UX'], details:'A hub for campus community projects.' },
-    { id:3, title:'Portfolio V1', type:'web', date:'2024-11-25', tags:['Accessibility','Responsive'], details:'First version of my portfolio.' },
-    { id:4, title:'CLI Buddy', type:'other', date:'2024-10-05', tags:['Node','CLI'], details:'A helper CLI that scaffolds projects.' }
+  /* ---------------- Active nav + last section ---------------- */
+  const navLinks = $$('.site-nav a');
+  const sections = navLinks.map(a => $(a.getAttribute('href'))).filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length) {
+    const navIO = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const id = entry.target.id;
+        const link = navLinks.find(a => a.getAttribute('href') === `#${id}`);
+        if (!link) return;
+        if (entry.isIntersecting) {
+          navLinks.forEach(a => a.classList.remove('is-active'));
+          link.classList.add('is-active');
+          localStorage.setItem(KEYS.lastSection, `#${id}`);
+        }
+      });
+    }, { rootMargin: '-50% 0px -40% 0px', threshold: 0.01 });
+    sections.forEach(sec => navIO.observe(sec));
+  }
+  // Back to top FAB
+  const toTop = $('#to-top');
+  const fabToggle = () => toTop?.classList.toggle('show', window.scrollY > 400);
+  fabToggle();
+  window.addEventListener('scroll', fabToggle, { passive:true });
+  toTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  /* ---------------- Inspiration (robust) ---------------- */
+  const quoteEl = $('#quote');
+  const authorEl = $('#quote-author');
+  const errEl = $('#quote-error');
+  const refreshBtn = $('#refresh-quote');
+  const retryBtn = $('#retry-quote');
+
+  const localQuotes = [
+    { content: 'Simplicity is the soul of efficiency.', author: 'Austin Freeman' },
+    { content: 'Make it work, make it right, make it fast.', author: 'Kent Beck' },
+    { content: 'Programs must be written for people to read.', author: 'Harold Abelson' },
   ];
 
-  // Render projects
-  const grid = $('#projectGrid');
-  const empty = $('#emptyState');
-  const search = $('#search');
-  const filter = $('#filter');
-  const sort = $('#sort');
+  async function getQuoteFromQuotable(){
+    const r = await fetch('https://api.quotable.io/random?tags=technology');
+    if (!r.ok) throw new Error('quotable fail');
+    const d = await r.json();
+    return { content: d.content, author: d.author };
+    // Sometimes public APIs fail due to rate/CORS—handled by fallbacks below.
+  }
+  async function getQuoteFromZen(){
+    const r = await fetch('https://zenquotes.io/api/random'); // returns [{q:"", a:""}]
+    if (!r.ok) throw new Error('zen fail');
+    const d = await r.json();
+    const item = Array.isArray(d) ? d[0] : d;
+    return { content: item.q || item.quote, author: item.a || item.author || 'Unknown' };
+  }
 
-  const renderProjects = (list=projects) => {
-    if (!grid) return;
-    grid.innerHTML = '';
-    if (!list.length){ empty.hidden = false; return;}
-    empty.hidden = true;
-    for (const p of list){
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.innerHTML = `
-        <h3>${p.title}</h3>
-        <div class="meta">${new Date(p.date).toLocaleDateString()} • ${p.type}</div>
-        <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-        <div class="details" id="det-${p.id}">${p.details}</div>
-        <div style="margin-top:8px; display:flex; gap:8px;">
-          <button class="button" data-toggle="${p.id}">Details</button>
-        </div>
-      `;
-      grid.appendChild(card);
+  async function fetchQuote() {
+    if (!quoteEl || !authorEl || !errEl) return;
+    errEl.hidden = true;
+    quoteEl.classList.add('skeleton');
+    authorEl.classList.add('skeleton-line');
+    quoteEl.textContent = ' ';
+    authorEl.textContent = ' ';
+
+    try {
+      let q;
+      try { q = await getQuoteFromQuotable(); }
+      catch { q = await getQuoteFromZen(); }
+      if (!q) throw new Error('no quote');
+      quoteEl.textContent = `“${q.content}”`;
+      authorEl.textContent = q.author ? `— ${q.author}` : '';
+    } catch {
+      // Local fallback
+      const q = localQuotes[Math.floor(Math.random()*localQuotes.length)];
+      quoteEl.textContent = `“${q.content}”`;
+      authorEl.textContent = `— ${q.author}`;
+      errEl.hidden = false;
+    } finally {
+      quoteEl.classList.remove('skeleton');
+      authorEl.classList.remove('skeleton-line');
     }
-    // wire up toggle
-    grid.querySelectorAll('[data-toggle]').forEach(btn=>{
-      btn.addEventListener('click', (e)=>{
-        const id = e.currentTarget.getAttribute('data-toggle');
-        const panel = document.getElementById('det-'+id);
-        if (!panel) return;
-        const open = panel.style.display === 'block';
-        panel.style.display = open ? 'none' : 'block';
-      });
+  }
+  refreshBtn?.addEventListener('click', fetchQuote);
+  retryBtn?.addEventListener('click', fetchQuote);
+  fetchQuote();
+
+  /* ---------------- Projects: search + filter + sort ---------------- */
+  const grid = $('#project-grid');
+  const cards = $$('.project-card', grid);
+  const searchInput = $('#project-search');
+  const filterBtns = $$('.filter-btn');
+  const sortSelect = $('#project-sort');
+  const resultsCount = $('#results-count');
+  const emptyState = $('#empty-state');
+
+  // Ensure image fit fix even if other CSS interferes
+  cards.forEach(c => {
+    const img = c.querySelector('.thumb');
+    if (img) { img.style.objectFit = 'contain'; img.style.width = '100%'; img.style.height = '100%'; img.style.objectPosition = 'center'; }
+  });
+
+  function readCardData(card) {
+    return {
+      el: card,
+      title: (card.dataset.title || card.querySelector('.card__title')?.textContent || '').toLowerCase(),
+      tags: (card.dataset.tags || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+      date: new Date(card.dataset.date || '2000-01-01'),
+      text: (card.textContent || '').toLowerCase(),
+    };
+  }
+  const model = cards.map(readCardData);
+
+  const state = {
+    q: localStorage.getItem(KEYS.search) || '',
+    filter: localStorage.getItem(KEYS.filter) || 'all',
+    sort: localStorage.getItem(KEYS.sort) || 'newest',
+  };
+
+  if (searchInput) searchInput.value = state.q;
+  filterBtns.forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter));
+  if (sortSelect) sortSelect.value = state.sort;
+
+  function applyFilterSort() {
+    const q = state.q.trim().toLowerCase();
+    const tag = state.filter;
+    let filtered = model.filter(m => {
+      const matchesQ = !q || m.title.includes(q) || m.text.includes(q);
+      const matchesTag = tag === 'all' || m.tags.includes(tag);
+      return matchesQ && matchesTag;
     });
-  };
 
-  const compute = ()=>{
-    const q = (search?.value || '').toLowerCase().trim();
-    const ty = filter?.value || 'all';
-    const s = sort?.value || 'date-desc';
-    let arr = projects.filter(p => (ty === 'all' || p.type === ty) && (p.title.toLowerCase().includes(q) || p.tags.some(t => t.toLowerCase().includes(q))));
-    const cmp = {
-      'title-asc': (a,b)=>a.title.localeCompare(b.title),
-      'title-desc': (a,b)=>b.title.localeCompare(a.title),
-      'date-asc': (a,b)=> new Date(a.date) - new Date(b.date),
-      'date-desc': (a,b)=> new Date(b.date) - new Date(a.date),
-    }[s];
-    arr.sort(cmp);
-    renderProjects(arr);
-  };
-  search?.addEventListener('input', compute);
-  filter?.addEventListener('change', compute);
-  sort?.addEventListener('change', compute);
-  renderProjects(); // initial
-
-  // GitHub API demo (data handling + error states + loading + retry)
-  const ghUser = $('#ghUser');
-  const ghFetch = $('#ghFetch');
-  const ghStatus = $('#ghStatus');
-  const ghList = $('#ghList');
-  const ghError = $('#ghError');
-  const ghRetry = $('#ghRetry');
-
-  let lastUser = 'octocat';
-  ghUser && (ghUser.value = lastUser);
-
-  async function loadRepos(user){
-    ghList.innerHTML = '';
-    ghError.hidden = true;
-    ghStatus.hidden = false;
-    ghStatus.textContent = 'Loading…';
-    try{
-      const res = await fetch(`https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=12`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      ghStatus.hidden = true;
-      if (!data.length){
-        ghList.innerHTML = `<p class="empty">No public repos for <strong>${user}</strong>.</p>`;
-        return;
+    filtered.sort((a, b) => {
+      switch (state.sort) {
+        case 'newest': return b.date - a.date;
+        case 'oldest': return a.date - b.date;
+        case 'az': return a.title.localeCompare(b.title);
+        case 'za': return b.title.localeCompare(a.title);
+        default: return 0;
       }
-      data.forEach(repo=>{
-        const item = document.createElement('article');
-        item.className = 'card';
-        item.innerHTML = `
-          <h3><a href="${repo.html_url}" target="_blank" rel="noreferrer">${repo.name}</a></h3>
-          <div class="meta">${repo.language ?? '—'} • ★ ${repo.stargazers_count}</div>
-          <p>${repo.description ?? ''}</p>
-        `;
-        ghList.appendChild(item);
-      });
-    }catch(err){
-      console.error('GH error', err);
-      ghStatus.hidden = true;
-      ghError.hidden = false;
-    }
+    });
+
+    const toHide = new Set(model.map(m => m.el));
+    filtered.forEach(m => toHide.delete(m.el));
+    toHide.forEach(el => { el.classList.add('is-hiding'); setTimeout(() => el.setAttribute('hidden','true'), 140); });
+
+    filtered.forEach(m => { m.el.removeAttribute('hidden'); m.el.classList.remove('is-hiding'); grid?.appendChild(m.el); });
+
+    const count = filtered.length;
+    if (resultsCount) resultsCount.textContent = `${count} project${count === 1 ? '' : 's'}`;
+    if (emptyState) emptyState.hidden = count !== 0;
   }
-  ghFetch?.addEventListener('click', ()=>{
-    lastUser = ghUser.value.trim() || 'octocat';
-    loadRepos(lastUser);
+
+  searchInput?.addEventListener('input', debounce(() => {
+    state.q = searchInput.value;
+    localStorage.setItem(KEYS.search, state.q);
+    applyFilterSort();
+  }, 120));
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      state.filter = btn.dataset.filter || 'all';
+      localStorage.setItem(KEYS.filter, state.filter);
+      applyFilterSort();
+    });
   });
-  ghRetry?.addEventListener('click', ()=> loadRepos(lastUser));
 
-  // Contact form validation + toast
-  const form = $('#contactForm');
-  const toast = $('#toast');
-  function show(e){ e.style.display='block'; }
-  function hide(e){ e.style.display='none'; }
+  sortSelect?.addEventListener('change', () => {
+    state.sort = sortSelect.value;
+    localStorage.setItem(KEYS.sort, state.sort);
+    applyFilterSort();
+  });
 
-  form?.addEventListener('submit', (e)=>{
+  applyFilterSort();
+
+  /* ---------------- Modals ---------------- */
+  $$('[data-open]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-open');
+      const dlg = document.getElementById(id);
+      if (!dlg) return;
+      if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open','');
+    });
+  });
+  $$('dialog.modal').forEach(dlg => {
+    dlg.querySelector('.modal__close')?.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => {
+      const win = dlg.querySelector('.modal__window');
+      const r = win.getBoundingClientRect();
+      const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      if (!inside) dlg.close();
+    });
+  });
+
+  /* ---------------- Contact form (inline errors + loading + toast) ---------------- */
+  const form = $('#contact-form');
+  const status = $('#form-status');
+  const sendBtn = $('#send-btn');
+
+  const validators = {
+    name: v => v.trim().length > 0,
+    email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+    message: v => v.trim().length > 0,
+  };
+
+  function fieldError(name, show) {
+    const err = $(`.error[data-error-for="${name}"]`); if (err) err.hidden = !show;
+  }
+
+  form?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const name = $('#name'); const email = $('#email'); const msg = $('#msg');
-    const eName = $('#err-name'); const eEmail = $('#err-email'); const eMsg = $('#err-msg');
+    if (!form) return;
 
-    let ok = true;
-    if (!name.value.trim()){ show(eName); ok = false; } else hide(eName);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)){ show(eEmail); ok = false; } else hide(eEmail);
-    if (msg.value.trim().length < 5){ show(eMsg); ok = false; } else hide(eMsg);
+    const fd = new FormData(form);
+    const name = String(fd.get('name')||'');
+    const email = String(fd.get('email')||'');
+    const message = String(fd.get('message')||'');
 
-    if (!ok) return;
+    const ok = { name: validators.name(name), email: validators.email(email), message: validators.message(message) };
+    fieldError('name', !ok.name); fieldError('email', !ok.email); fieldError('message', !ok.message);
+    if (!ok.name || !ok.email || !ok.message) { showToast('Please fix the errors', 'Some fields are missing or invalid.', 'error'); return; }
 
-    // pretend to send
-    setTimeout(()=>{
-      toast.classList.add('show');
-      setTimeout(()=> toast.classList.remove('show'), 2000);
+    sendBtn?.classList.add('is-loading'); if (status) status.textContent = 'Sending…';
+
+    setTimeout(() => {
+      sendBtn?.classList.remove('is-loading');
       form.reset();
-    }, 300);
+      if (status) status.textContent = 'Thanks! Your message has been “sent” (demo only).';
+      showToast('Message sent!', 'Thanks for reaching out. I’ll get back to you soon.');
+    }, 700);
   });
 
-  form?.addEventListener('reset', ()=>{
-    hide($('#err-name')); hide($('#err-email')); hide($('#err-msg'));
+  $$('#contact-form input, #contact-form textarea').forEach(el => {
+    el.addEventListener('blur', () => {
+      const name = el.getAttribute('name'); if (!name || !validators[name]) return;
+      fieldError(name, !validators[name](el.value));
+    });
   });
 
-  // AI helper (optional). If key provided, call OpenAI-compatible API; else local fallback.
-  const aiPanel = document.getElementById('aiPanel');
-  const openAiHelper = document.getElementById('openAiHelper');
-  const aiKey = document.getElementById('aiKey');
-  const aiPrompt = document.getElementById('aiPrompt');
-  const aiOutput = document.getElementById('aiOutput');
-  const aiGenerate = document.getElementById('aiGenerate');
-  const aiClear = document.getElementById('aiClear');
-
-  // Persist key locally
-  const KEY_STORE = 'ai_key';
-  if (localStorage.getItem(KEY_STORE)) aiKey.value = localStorage.getItem(KEY_STORE);
-  aiKey?.addEventListener('change', ()=> localStorage.setItem(KEY_STORE, aiKey.value.trim()));
-
-  openAiHelper?.addEventListener('click', ()=>{
-    aiPanel.showModal();
-    openAiHelper.setAttribute('aria-expanded', 'true');
-  });
-  aiPanel?.addEventListener('close', ()=> openAiHelper.setAttribute('aria-expanded', 'false'));
-
-  aiClear?.addEventListener('click', ()=> { aiPrompt.value=''; aiOutput.textContent=''; });
-
-  async function aiLocalFallback(prompt){
-    // Very simple rule-based "assist": rewrite as friendly microcopy.
-    return `Friendly suggestion based on your prompt:\n\n“${prompt.replace(/[.?!]*$/,'')}!” 🙂\n\n(This is a local fallback. Add an API key to use a real AI service.)`;
-  }
-
-  async function aiCall(prompt, key){
-    if (!key) return aiLocalFallback(prompt);
-    try{
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'Authorization':`Bearer ${key}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {role:'system', content:'You write short, friendly UX microcopy.'},
-            {role:'user', content: prompt}
-          ],
-          temperature: 0.7
-        })
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content?.trim();
-      return text || '(No response text)';
-    }catch(err){
-      console.warn('AI error', err);
-      return aiLocalFallback(prompt);
+  /* ---------------- Keyboard shortcuts ---------------- */
+  window.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+      e.preventDefault(); $('#project-search')?.focus();
     }
-  }
-
-  aiGenerate?.addEventListener('click', async ()=>{
-    const prompt = aiPrompt.value.trim() || 'Draft a friendly success message for the contact form.';
-    aiOutput.textContent = 'Generating…';
-    const text = await aiCall(prompt, aiKey.value.trim());
-    aiOutput.textContent = text;
+    if (e.key.toLowerCase() === 't') { toggleBtn?.click(); }
+    if (e.key.toLowerCase() === 'g') {
+      // simple "g then key" navigation
+      let next = null;
+      const onKey = (ev) => {
+        const k = ev.key.toLowerCase();
+        if (k === 'h') next = '#hero';
+        if (k === 'a') next = '#about';
+        if (k === 'p') next = '#projects';
+        if (k === 'c') next = '#contact';
+        window.removeEventListener('keydown', onKey, true);
+        if (next) document.querySelector(next)?.scrollIntoView({ behavior:'smooth' });
+      };
+      window.addEventListener('keydown', onKey, true);
+    }
   });
-})();
+});
+
+/* ---------------- Toast ---------------- */
+function showToast(title, description, type='success'){
+  const wrap = document.getElementById('toast-container'); if (!wrap) return;
+  const el = document.createElement('div');
+  el.className = 'toast' + (type === 'error' ? ' toast--error' : '');
+  el.innerHTML = `<div class="toast-title">${title}</div><div class="toast-description">${description}</div>`;
+  wrap.appendChild(el);
+  setTimeout(() => { el.style.animation = 'fadeOut .25s ease-out forwards'; setTimeout(() => el.remove(), 260); }, 4200);
+}
+
+/* ---------------- Debounce ---------------- */
+function debounce(fn, wait=120){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }

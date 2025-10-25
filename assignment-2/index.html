@@ -1,131 +1,268 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="system">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Portfolio • Assignment 2</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <meta name="description" content="Ali Alzaki — interactive portfolio (game dev + web dev)." />
+  <title>Ali Alzaki • Portfolio</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
-  <header class="header">
-    <div class="container header__wrap">
-      <div class="brand">Your Name</div>
-      <nav class="nav" aria-label="Main">
+<body class="bg-grid">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Scroll progress -->
+  <div id="scroll-progress" aria-hidden="true"></div>
+
+  <!-- Toasts -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner container">
+      <a class="logo" href="#hero" aria-label="Go to top">Ali Alzaki</a>
+      <nav class="site-nav" aria-label="Primary">
         <a href="#about">About</a>
         <a href="#projects">Projects</a>
         <a href="#contact">Contact</a>
-        <button id="themeToggle" class="theme-toggle" aria-pressed="false">🌗 Theme</button>
       </nav>
+
+      <!-- Theme toggle -->
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">
+        <span class="theme-icon" aria-hidden="true">🌙</span>
+        <span class="theme-label">Dark</span>
+      </button>
     </div>
   </header>
 
-  <main class="container" id="main">
-    <section class="hero">
-      <div class="hero__hi"><span id="greeting" class="hero__greeting">Hello!</span> 👋</div>
-      <p class="hero__sub">Welcome to my portfolio. This page implements Assignment 2 interactive features.</p>
+  <main id="main">
+    <!-- HERO -->
+    <section id="hero" class="hero" data-animate>
+      <div class="container hero__content">
+        <p class="eyebrow">Software Engineering • Game Dev • Web</p>
+        <h1 class="tagline">
+          Building <span class="accent-text">playful</span> & <span class="accent-text-2">thoughtful</span> experiences
+        </h1>
 
-      <div class="badges" role="list">
-        <span class="badge">Accessible</span>
-        <span class="badge">Responsive</span>
-        <span class="badge">AI-assisted</span>
-        <button class="badge button" id="openAiHelper" aria-controls="aiPanel" aria-expanded="false">AI Helper</button>
-      </div>
+        <p class="greeting">
+          <span id="greeting">Hello!</span>
+          <button id="personalize" class="chip chip--action" aria-describedby="personalize-hint">Personalize</button>
+          <span id="personalize-hint" class="visually-hidden">Set your name for a personalized greeting.</span>
+        </p>
 
-      <div class="tabs" role="tablist" aria-label="Sections">
-        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-about">About</button>
-        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-projects">Projects</button>
-        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-contact">Contact</button>
+        <div class="chips" aria-label="Interests">
+          <span class="chip">Game Dev</span>
+          <span class="chip">Web Dev</span>
+          <span class="chip">UI/UX</span>
+        </div>
+
+        <!-- Inspiration widget -->
+        <aside class="inspire" data-animate aria-live="polite">
+          <div class="inspire__header">
+            <strong>Inspiration</strong>
+            <button id="refresh-quote" class="link-btn small" type="button" aria-label="Get another quote">↻ Refresh</button>
+          </div>
+          <p id="quote" class="inspire__text skeleton">Loading inspiration…</p>
+          <p id="quote-author" class="inspire__author skeleton-line"></p>
+          <p id="quote-error" class="inspire__error" hidden>
+            Couldn’t load a quote. <button id="retry-quote" class="link-btn small" type="button">Try again</button>
+          </p>
+        </aside>
+
+        <!-- playful stickers -->
+        <div class="hero__stickers" aria-hidden="true">
+          <span>🕹️</span><span>💻</span><span>🧪</span><span>🌱</span>
+        </div>
       </div>
     </section>
 
-    <section id="about" class="section reveal" data-tab="tab-about">
-      <h2>About Me</h2>
-      <p>I’m a software developer interested in web, UI, and games. This page demonstrates filters, search, transitions, API fetching, and robust error handling.</p>
+    <!-- ABOUT -->
+    <section id="about" class="section about" data-animate>
+      <div class="container">
+        <h2 class="section-title">About Me</h2>
+        <div class="about__content">
+          <figure class="about__figure">
+            <img
+              src="assets/images/my photo.jpg"
+              alt="Ali Alzaki"
+              class="about__photo"
+              loading="lazy"
+              width="96" height="96"
+            />
+            <figcaption class="visually-hidden">Profile photo</figcaption>
+          </figure>
+          <div class="about__text-wrap">
+            <p class="about__text">
+              I am a junior software engineering student at KFUPM, passionate about game development and interested in web development.
+              Building projects—even small ones—is the key to learning.
+            </p>
+            <details class="about__more">
+              <summary>Show more</summary>
+              <p>
+                I enjoy prototyping playful interactions, polishing UI details, and shipping small features quickly.
+                Recently I’ve been exploring accessibility, performance budgets, and micro-animations.
+              </p>
+            </details>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section id="projects" class="section reveal" data-tab="tab-projects" hidden>
-      <h2>Projects</h2>
-      <div class="controls" role="region" aria-label="Project controls">
-        <input id="search" type="search" placeholder="Search by title or tag…" aria-label="Search projects" />
-        <select id="filter">
-          <option value="all">All types</option>
-          <option value="web">Web</option>
-          <option value="game">Game</option>
-          <option value="other">Other</option>
-        </select>
-        <select id="sort">
-          <option value="title-asc">Title (A→Z)</option>
-          <option value="title-desc">Title (Z→A)</option>
-          <option value="date-desc">Newest first</option>
-          <option value="date-asc">Oldest first</option>
-        </select>
-      </div>
-      <div id="projectGrid" class="grid" aria-live="polite"></div>
-      <p id="emptyState" class="empty" hidden>No projects found.</p>
+    <!-- PROJECTS -->
+    <section id="projects" class="section projects" data-animate>
+      <div class="container">
+        <h2 class="section-title">Projects</h2>
 
-      <h3 style="margin-top:18px">Fetch GitHub Repos (Demo)</h3>
-      <div class="controls">
-        <input id="ghUser" class="input" placeholder="GitHub username (e.g. octocat)" />
-        <button id="ghFetch" class="button">Fetch Repos</button>
-        <span id="ghStatus" class="empty" hidden>Loading…</span>
+        <!-- Toolbar -->
+        <div class="projects__toolbar" role="region" aria-label="Project controls">
+          <div class="toolbar__row">
+            <label class="search">
+              <span class="visually-hidden">Search projects</span>
+              <input id="project-search" type="search" placeholder="Search projects…" inputmode="search" />
+            </label>
+
+            <div class="filters" role="group" aria-label="Filter projects">
+              <button class="filter-btn is-active" data-filter="all" type="button">All</button>
+              <button class="filter-btn" data-filter="web" type="button">Web</button>
+              <button class="filter-btn" data-filter="game" type="button">Game</button>
+              <button class="filter-btn" data-filter="uiux" type="button">UI/UX</button>
+            </div>
+
+            <label class="sort">
+              <span class="visually-hidden">Sort projects</span>
+              <select id="project-sort" aria-label="Sort projects">
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="az">A–Z</option>
+                <option value="za">Z–A</option>
+              </select>
+            </label>
+          </div>
+
+          <p id="results-count" class="results-count" aria-live="polite">Loading…</p>
+        </div>
+
+        <div id="project-grid" class="grid">
+          <!-- Project 1 -->
+          <article class="card project-card"
+                   data-title="Evaluation Hub" data-tags="web,uiux"
+                   data-date="2025-03-01" data-animate>
+            <div class="thumb-wrap">
+              <img src="assets/images/evaluation hub project.jpg"
+                   alt="Evaluation Hub preview"
+                   class="thumb" loading="lazy" />
+            </div>
+            <div class="card__body">
+              <h3 class="card__title">Evaluation Hub</h3>
+              <p class="card__text">
+                Students evaluate instructors monthly with simple, interactive flows to improve teaching quality.
+              </p>
+              <button class="link-btn" data-open="modal-evaluation">More info →</button>
+            </div>
+          </article>
+
+          <!-- Project 2 -->
+          <article class="card project-card"
+                   data-title="Student Impact Hub" data-tags="web,uiux,community"
+                   data-date="2025-02-10" data-animate>
+            <div class="thumb-wrap">
+              <img src="assets/images/student impact hub project.jpg"
+                   alt="Student Impact Hub preview"
+                   class="thumb" loading="lazy" />
+            </div>
+            <div class="card__body">
+              <h3 class="card__title">Student Impact Hub</h3>
+              <p class="card__text">
+                Activities and events in one place to encourage and simplify student involvement.
+              </p>
+              <button class="link-btn" data-open="modal-impact">More info →</button>
+            </div>
+          </article>
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="empty" hidden>
+          <p>No projects found. Try a different filter or search term.</p>
+        </div>
       </div>
-      <div id="ghList" class="grid"></div>
-      <p id="ghError" class="empty" hidden>
-        Couldn’t load repos. <button id="ghRetry" class="button">Retry</button>
-      </p>
     </section>
 
-    <section id="contact" class="section reveal" data-tab="tab-contact" hidden>
-      <h2>Contact</h2>
-      <form id="contactForm" class="form" novalidate>
-        <div class="row">
-          <label for="name">Name</label>
-          <input id="name" class="input" required />
-          <span class="error" id="err-name">Please enter your name.</span>
-        </div>
-        <div class="row">
-          <label for="email">Email</label>
-          <input id="email" class="input" type="email" required />
-          <span class="error" id="err-email">Please enter a valid email.</span>
-        </div>
-        <div class="row">
-          <label for="msg">Message</label>
-          <textarea id="msg" class="input" rows="5" required></textarea>
-          <span class="error" id="err-msg">Please add a short message.</span>
-        </div>
-        <div class="row" style="display:flex; gap:8px;">
-          <button class="button primary" type="submit">Send</button>
-          <button class="button" type="reset">Reset</button>
-        </div>
-      </form>
+    <!-- CONTACT -->
+    <section id="contact" class="section contact" data-animate>
+      <div class="container">
+        <h2 class="section-title">Contact</h2>
+        <form class="contact__form" id="contact-form" name="contact" novalidate>
+          <label>
+            Name
+            <input type="text" name="name" placeholder="Your name" required />
+            <small class="error" data-error-for="name" hidden>Please enter your name.</small>
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" placeholder="you@example.com" required />
+            <small class="error" data-error-for="email" hidden>Please enter a valid email.</small>
+          </label>
+          <label>
+            Message
+            <textarea name="message" rows="5" placeholder="Say hello…" required></textarea>
+            <small class="error" data-error-for="message" hidden>Please write a message.</small>
+          </label>
+          <button id="send-btn" type="submit" class="btn">
+            <span class="btn__label">Send</span>
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+          <p id="form-status" role="status" aria-live="polite" class="form-status"></p>
+        </form>
+      </div>
     </section>
   </main>
 
-  <footer class="footer container">© <span id="year">2025</span> · Built for SWE 363 Assignment 2</footer>
+  <footer class="site-footer">
+    <div class="container">
+      <button id="to-top" class="to-top" type="button" aria-label="Back to top">↑</button>
+      <small>&copy; <span id="year"></span> Ali Alzaki. Built with HTML, CSS, and JS.</small>
+    </div>
+  </footer>
 
-  <!-- AI helper panel -->
-  <dialog id="aiPanel" style="border:none; max-width:720px; width:clamp(320px,70vw,720px); border-radius:16px; padding:0;">
-    <form method="dialog" style="margin:0;">
-      <header class="header" style="padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px;">
-        <strong>AI Helper</strong>
-        <span style="color:var(--muted);">Optional: paste an API key to draft microcopy.</span>
-        <button value="close" class="button" style="margin-left:auto;">Close</button>
-      </header>
-      <div style="padding:16px; display:grid; gap:10px; background:var(--bg);">
-        <input id="aiKey" class="input" placeholder="OpenAI-compatible API key (optional)" />
-        <textarea id="aiPrompt" class="input" rows="4" placeholder="e.g., Draft a friendly success message for the contact form."></textarea>
-        <div style="display:flex; gap:8px;">
-          <button id="aiGenerate" class="button primary" type="button">Generate</button>
-          <button id="aiClear" class="button" type="button">Clear</button>
-        </div>
-        <pre id="aiOutput" class="empty" style="white-space:pre-wrap;"></pre>
-        <p class="empty">Privacy note: The key only lives in your browser (LocalStorage) and requests go directly from your browser.</p>
-      </div>
-    </form>
-  </dialog>
+  <!-- Project Modals -->
+<!-- Project Modals -->
+<dialog id="modal-evaluation" class="modal" aria-labelledby="modal-evaluation-title">
+  <div class="modal__window">
+    <button class="modal__close" aria-label="Close">✕</button>
+    <h3 id="modal-evaluation-title">Evaluation Hub — Details</h3>
+    <p>An interactive web application that allows students to evaluate there instructors every month and serach for their ratings, comment and have a discussions about them to ensure a better, realitstic, and overall improvement of teaching quality.</p>
+    <div class="modal__links">
+      <!-- Opens your Figma prototype in a new tab -->
+      <a class="btn" href="https://www.figma.com/design/e7590jddXaMW7LUXvPNr5y/Instructor-Rating-App?node-id=0-1&p=f&t=EkXtbk1I00IdTlIe-0"
+         target="_blank" rel="noopener">View Figma</a>
+    </div>
+  </div>
+</dialog>
 
-  <div id="toast" class="toast" role="status" aria-live="polite">Sent! I’ll get back to you soon.</div>
+<dialog id="modal-impact" class="modal" aria-labelledby="modal-impact-title">
+  <div class="modal__window">
+    <button class="modal__close" aria-label="Close">✕</button>
+    <h3 id="modal-impact-title">Student Impact Hub — Details</h3>
+    <p>An impact hub that allows student to join commuities based on their major or whatever hobby they like to improve the social Activities in the university.</p>
+    <div class="modal__links">
+      <!-- Points to the uploaded PDF (place this file under assets/docs/ in your project) -->
+      <a class="btn btn--outline"
+      href="assets/docs/SWE216_Presentation%5B1%5D.pdf"
+      type="application/pdf"
+      download="Student-Impact-Hub-PowerPoint.pdf">Download PowerPoint (PDF)</a>
+    </div>
+  </div>
+</dialog>
+
+
   <script src="js/script.js" defer></script>
 </body>
 </html>
