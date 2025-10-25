@@ -20,7 +20,7 @@
 
 ## My Understanding and Edits
 I used AI tools to save time and learn, not to replace understanding.  
-I reviewed each generated part, simplified the logic, added comments, and tested everything manually to make sure it worked correctly.
+I reviewed each generated part, simplified the logic, added comments, and tested everything manually to make sure it worked in a correct way.
 
 ## Benefits
 - Faster idea validation and troubleshooting.

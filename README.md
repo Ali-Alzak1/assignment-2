@@ -23,6 +23,7 @@ All features build directly on my Assignment 1 portfolio to make it feel more in
 I reviewed and edited all AI suggestions myself to make sure I understood the code and the reasoning behind each feature.
 
 ## 🗂 Project Structure
+
 ```plaintext
 ASSIGNMENT-2/
 ├── assets/

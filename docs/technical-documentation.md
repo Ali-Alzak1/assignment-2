@@ -33,4 +33,4 @@ All new features were designed to improve user experience, add interactivity, an
 
 ## Summary
 Assignment 2 focuses on improving interactivity, accessibility, and user feedback.  
-All features are lightweight, responsive, and built with plain HTML, CSS, and JavaScript — no frameworks or external dependencies.
+All features are lightweight, responsive, and built with plain HTML, CSS, and JavaScript, no frameworks or external dependencies.
