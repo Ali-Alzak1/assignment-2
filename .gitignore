@@ -1,11 +1,33 @@
-# Dependencies / caches
-node_modules/
+# OS / editor
 .DS_Store
-dist/
-.cache/
-*.log
-# Editors
-.vscode/
-.idea/
-# OS
 Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env / secrets (not expected, but safe)
+.env
+.env.local
+.env.*
+
+# Build / tooling (in case of future extensions)
+dist/
+build/
+.cache/
+.tmp/
+coverage/
+.vercel/
+.netlify/
+
+# Node (not used now, but future-proof)
+node_modules/
+
+# Misc
+*.zip
+*.tar.gz

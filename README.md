@@ -1,52 +1,60 @@
 # Assignment 2 – Interactive Features
 
-Enhanced personal portfolio built on top of Assignment 1.
+Enhanced personal portfolio building on top of Assignment 1.
 
-## 🚀 What’s new in Assignment 2
+## 🚀 What’s New in Assignment 2
+- Dynamic **project filter/sort + live search**
+- **Theme toggle** (saved in LocalStorage)
+- Accessible dialogs for per-project details (Figma link vs PowerPoint download)
+- **Reveal-on-scroll** animations (reduced-motion friendly)
+- **GitHub API** demo with loading/empty/error states + retry
+- **Contact form** with inline validation and success toast
+- Optional **AI Helper** panel (OpenAI-compatible, key-based) with a local fallback
+- Clear empty states and user feedback across features
 
-- Dynamic project filter/sort + live search
-- Theme toggle (saved in LocalStorage)
-- Smooth section tabs (About / Projects / Contact)
-- Fetch GitHub repos via API (with loading/empty/error states + retry)
-- Animated UI (fade/slide/hover, reduced-motion friendly)
-- Form validation with inline errors and success toast
-- Optional AI copy helper (works if you paste an API key at runtime) — with safe fallback
-- Comprehensive error handling and user feedback across features
-- Updated docs including an AI usage report
-
-## 🗂 Project structure
-
-```
-assignment-2/
-├── README.md
-├── index.html
-├── css/
-│   └── styles.css
-├── js/
-│   └── script.js
+## 🗂 Project Structure
+ASSIGNMENT-2/
 ├── assets/
-│   └── images/  # copied from Assignment 1
+│   └── images/
+├── css/
 ├── docs/
-│   ├── ai-usage-report.md
-│   └── technical-documentation.md
-└── .gitignore
-```
+├── js/
+├── .gitignore
+├── index.html
+├── README.md
+└── SWE216_Presentation.pdf
 
-## 🧰 Running locally
 
+
+
+## 🧰 Running Locally
 Just open `index.html` in a browser. No build step required.
 
-> For the optional AI copy helper: open the “AI Helper” pane, paste an API key (OpenAI compatible), and try generating microcopy. If no key is provided, the app uses a safe local fallback.
+For the optional AI Helper: open the helper pane, paste an OpenAI-compatible API key, and try generating microcopy. If no key is provided, the app uses a safe local fallback.
 
-## 🌐 Live deploy (optional)
+## 🔗 Project Details Links
+- **Evaluation Hub** — opens Figma (design/prototype).
+- **Student Impact Hub** — offers a direct **.pptx** download (or a proper exported PDF).
 
-You can publish with **GitHub Pages**:
-1. Push this repo to GitHub as `assignment-2`
-2. Settings → Pages → Deploy from branch → `main` / root
-3. Wait for the published URL
+> Tip: If a PDF shows blank pages, ensure it’s a *true export* from PowerPoint (**File → Export → PDF**) rather than a renamed file.
 
-## 🧪 Notes for graders
+## 🤖 AI Summary (High-Level)
+- **ChatGPT 5 Pro** — brainstorming features and planning (features are my ideas; ChatGPT helped shape and prioritize).
+- **ChatGPT 5 & GitHub Copilot** — fixing errors, clarifying warnings, and suggesting small refactors.
+- **Lovable** — CSS suggestions for spacing, contrast, and states.
+- Privacy: no secrets are hard-coded; optional AI runs client-side with a user-supplied key. A local fallback keeps the site fully functional.
 
-- All new features are visible in the UI. Open the console for extra logs when testing failure cases.
-- Reduce-motion is respected if your OS/browser has it enabled.
-- API fetching is client-side and works without any server.
+> Full details are in `docs/ai-usage-report.md`.
+
+## 🧪 Notes for Graders
+- All new features are visible in the UI. Open the console to test error/retry flows.
+- Reduced-motion is respected if enabled in your OS/browser.
+- The API demo is client-side and needs network access.
+
+## 🌐 Optional: Live Deploy
+GitHub Pages:
+1. Push to GitHub as `assignment-2`.
+2. **Settings → Pages →** Deploy from branch (`main` / root).
+3. Open the published URL after it builds.
+
+
